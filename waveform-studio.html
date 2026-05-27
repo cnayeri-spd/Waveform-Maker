@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BINARY · WAVEFORM STUDIO</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f1ede4;
+    --paper-2: #e8e3d6;
+    --rule: #0a0a0a;
+    --accent: #d94f1e;
+    --muted: #6b6657;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(217,79,30,0.06), transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(10,10,10,0.04), transparent 50%);
+  }
+
+  /* ============ LAYOUT ============ */
+  .frame {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 36px 60px;
+  }
+  header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1.5px solid var(--ink);
+    margin-bottom: 28px;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-style: italic;
+    font-size: 64px;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+  }
+  .logo .sub {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    margin-top: 8px;
+    color: var(--muted);
+  }
+  .meta {
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .meta .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .tagline {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    align-self: end;
+    padding-bottom: 6px;
+  }
+
+  /* ============ MAIN GRID ============ */
+  .studio {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+  }
+
+  /* ============ CONTROLS ============ */
+  .panel {
+    background: var(--paper-2);
+    border: 1.5px solid var(--ink);
+    padding: 22px 22px 26px;
+    position: relative;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: -6px; bottom: -6px;
+    border: 1.5px solid var(--ink);
+    z-index: -1;
+    background: var(--paper);
+  }
+  .panel-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .panel-sub {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--ink);
+  }
+  .group {
+    margin-bottom: 18px;
+  }
+  .group-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .control {
+    margin-bottom: 14px;
+  }
+  .control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .control-name {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+  }
+  .control-name .greek {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    margin-right: 6px;
+    color: var(--accent);
+  }
+  .control-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 7px;
+    min-width: 50px;
+    text-align: center;
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--ink);
+    outline: none;
+    margin: 6px 0 2px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--ink);
+  }
+  button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 8px;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 700;
+  }
+  button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  button.primary {
+    background: var(--accent);
+    color: var(--paper);
+  }
+  button.primary:hover {
+    background: var(--ink);
+  }
+
+  .presets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .preset-btn {
+    font-size: 9px;
+    padding: 8px 6px;
+    background: transparent;
+    border: 1px solid var(--ink);
+  }
+
+  /* ============ OUTPUT ============ */
+  .output {
+    background: var(--ink);
+    color: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .output::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: -6px; bottom: -6px;
+    border: 1.5px solid var(--ink);
+    z-index: -1;
+    background: var(--accent);
+  }
+  .output-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 22px;
+    border-bottom: 1px solid rgba(241,237,228,0.2);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(241,237,228,0.6);
+  }
+  .output-bar .title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--paper);
+    letter-spacing: -0.01em;
+  }
+  .stats {
+    display: flex;
+    gap: 18px;
+  }
+  .stat strong {
+    color: var(--paper);
+    font-weight: 700;
+  }
+  .ascii-wrap {
+    flex: 1;
+    padding: 20px 22px;
+    overflow: auto;
+    background:
+      linear-gradient(rgba(241,237,228,0.02) 1px, transparent 1px) 0 0 / 100% 16px;
+  }
+  pre#ascii {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.05;
+    white-space: pre;
+    color: var(--paper);
+    letter-spacing: 0.05em;
+  }
+  pre#ascii .one {
+    color: var(--accent);
+  }
+
+  /* footer / formula display */
+  .formula {
+    padding: 12px 22px;
+    border-top: 1px solid rgba(241,237,228,0.2);
+    font-size: 10px;
+    color: rgba(241,237,228,0.7);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+  .formula b {
+    color: var(--accent);
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    margin: 0 2px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 980px) {
+    .studio { grid-template-columns: 1fr; }
+    .logo { font-size: 44px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <header>
+    <h1 class="logo">
+      Waveform<br>Studio<sup style="color:var(--accent);font-size:0.3em;vertical-align:super;">●</sup>
+      <span class="sub">— binary topography generator / v.02</span>
+    </h1>
+    <p class="tagline">"a small instrument for drawing curves<br>out of ones and zeros."</p>
+    <div class="meta">
+      <div><span class="dot"></span>SESSION ACTIVE</div>
+      <div>EST. 2026 / CAMBRIDGE</div>
+      <div id="timestamp">—</div>
+    </div>
+  </header>
+
+  <div class="studio">
+
+    <!-- ====== CONTROL PANEL ====== -->
+    <aside class="panel">
+      <div class="panel-title">Parameters</div>
+      <div class="panel-sub">Adjust to taste</div>
+
+      <div class="group">
+        <div class="group-label">◆ Canvas</div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name">Width</span>
+            <span class="control-value" id="v-width">90</span>
+          </div>
+          <input type="range" id="width" min="40" max="160" value="90">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name">Height</span>
+            <span class="control-value" id="v-height">50</span>
+          </div>
+          <input type="range" id="height" min="20" max="120" value="50">
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-label">◆ Band</div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name">Base width</span>
+            <span class="control-value" id="v-bw">22</span>
+          </div>
+          <input type="range" id="bw" min="2" max="60" value="22">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name">Breathing</span>
+            <span class="control-value" id="v-breathe">4</span>
+          </div>
+          <input type="range" id="breathe" min="0" max="20" value="4">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name">Breathe freq</span>
+            <span class="control-value" id="v-bfreq">2.2</span>
+          </div>
+          <input type="range" id="bfreq" min="0" max="60" value="22">
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-label">◆ Primary wave</div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">A</span>amplitude</span>
+            <span class="control-value" id="v-a1">18</span>
+          </div>
+          <input type="range" id="a1" min="0" max="60" value="18">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">ƒ</span>frequency</span>
+            <span class="control-value" id="v-f1">1.3</span>
+          </div>
+          <input type="range" id="f1" min="0" max="80" value="13">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">φ</span>phase</span>
+            <span class="control-value" id="v-p1">0.5</span>
+          </div>
+          <input type="range" id="p1" min="0" max="628" value="50">
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-label">◆ Secondary wave</div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">A</span>amplitude</span>
+            <span class="control-value" id="v-a2">6</span>
+          </div>
+          <input type="range" id="a2" min="0" max="40" value="6">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">ƒ</span>frequency</span>
+            <span class="control-value" id="v-f2">3.1</span>
+          </div>
+          <input type="range" id="f2" min="0" max="120" value="31">
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-label">◆ Tertiary wave</div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">A</span>amplitude</span>
+            <span class="control-value" id="v-a3">3</span>
+          </div>
+          <input type="range" id="a3" min="0" max="30" value="3">
+        </div>
+        <div class="control">
+          <div class="control-row">
+            <span class="control-name"><span class="greek">ƒ</span>frequency</span>
+            <span class="control-value" id="v-f3">5.7</span>
+          </div>
+          <input type="range" id="f3" min="0" max="200" value="57">
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-label">◆ Presets</div>
+        <div class="presets">
+          <button class="preset-btn" data-preset="gentle">Gentle drift</button>
+          <button class="preset-btn" data-preset="serpentine">Serpentine</button>
+          <button class="preset-btn" data-preset="ripple">Ripple field</button>
+          <button class="preset-btn" data-preset="tidal">Tidal</button>
+          <button class="preset-btn" data-preset="chaos">Chaos</button>
+          <button class="preset-btn" data-preset="braid">Braid</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="copy" class="primary">Copy</button>
+        <button id="download">Download .txt</button>
+      </div>
+    </aside>
+
+    <!-- ====== OUTPUT ====== -->
+    <section class="output">
+      <div class="output-bar">
+        <span class="title">Output ⟶</span>
+        <div class="stats">
+          <span class="stat">DIM <strong id="s-dim">90×50</strong></span>
+          <span class="stat">CHARS <strong id="s-chars">4500</strong></span>
+          <span class="stat">ONES <strong id="s-ones">0%</strong></span>
+        </div>
+      </div>
+      <div class="ascii-wrap">
+        <pre id="ascii"></pre>
+      </div>
+      <div class="formula" id="formula"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // ============ STATE ============
+  const params = {
+    width: 90, height: 50,
+    bw: 22, breathe: 4, bfreq: 2.2,
+    a1: 18, f1: 1.3, p1: 0.5,
+    a2: 6, f2: 3.1,
+    a3: 3, f3: 5.7,
+  };
+
+  // sliders that need decimal handling (stored as int10, displayed as float)
+  const decimalControls = {
+    bfreq: 10, f1: 10, p1: 100, f2: 10, f3: 10
+  };
+
+  // ============ RENDER ============
+  function generate() {
+    const W = params.width, H = params.height;
+    let totalOnes = 0;
+    const lines = [];
+    for (let y = 0; y < H; y++) {
+      const t = y / H;
+      const offset =
+        params.a1 * Math.sin(t * Math.PI * params.f1 + params.p1) +
+        params.a2 * Math.sin(t * Math.PI * params.f2 + 1.2) +
+        params.a3 * Math.sin(t * Math.PI * params.f3);
+      const bw = Math.max(1, params.bw + Math.round(params.breathe * Math.sin(t * Math.PI * params.bfreq)));
+      const center = W / 2 + offset;
+      let row = '';
+      for (let x = 0; x < W; x++) {
+        const pos = ((x - center) % W + W) % W;
+        if (pos < bw) { row += '1'; totalOnes++; }
+        else row += '0';
+      }
+      lines.push(row);
+    }
+
+    // render with span-wrapped 1s so they pop in accent color
+    const html = lines.map(l =>
+      l.replace(/(1+)/g, '<span class="one">$1</span>')
+    ).join('\n');
+    document.getElementById('ascii').innerHTML = html;
+
+    // stats
+    const total = W * H;
+    document.getElementById('s-dim').textContent = `${W}×${H}`;
+    document.getElementById('s-chars').textContent = total.toLocaleString();
+    document.getElementById('s-ones').textContent = Math.round(totalOnes / total * 100) + '%';
+
+    // formula
+    document.getElementById('formula').innerHTML =
+      `offset(t) = <b>${params.a1}</b>·sin(πt·<b>${params.f1.toFixed(1)}</b> + <b>${params.p1.toFixed(2)}</b>) ` +
+      `+ <b>${params.a2}</b>·sin(πt·<b>${params.f2.toFixed(1)}</b> + 1.2) ` +
+      `+ <b>${params.a3}</b>·sin(πt·<b>${params.f3.toFixed(1)}</b>)`;
+
+    return lines.join('\n');
+  }
+
+  // ============ WIRING ============
+  function bind(id) {
+    const el = document.getElementById(id);
+    const valEl = document.getElementById('v-' + id);
+    const divisor = decimalControls[id];
+
+    function syncFromState() {
+      const raw = divisor ? Math.round(params[id] * divisor) : params[id];
+      el.value = raw;
+      valEl.textContent = divisor
+        ? params[id].toFixed(divisor === 100 ? 2 : 1)
+        : params[id];
+    }
+    el.addEventListener('input', () => {
+      const raw = +el.value;
+      params[id] = divisor ? raw / divisor : raw;
+      valEl.textContent = divisor
+        ? params[id].toFixed(divisor === 100 ? 2 : 1)
+        : params[id];
+      generate();
+    });
+    syncFromState();
+  }
+  ['width','height','bw','breathe','bfreq','a1','f1','p1','a2','f2','a3','f3'].forEach(bind);
+
+  // ============ PRESETS ============
+  const presets = {
+    gentle:     { width:90, height:50, bw:18, breathe:3, bfreq:2.0, a1:8,  f1:1.0, p1:0.0, a2:2, f2:2.5, a3:1, f3:4.0 },
+    serpentine: { width:90, height:60, bw:22, breathe:5, bfreq:1.5, a1:24, f1:1.4, p1:0.5, a2:8, f2:3.2, a3:3, f3:5.7 },
+    ripple:     { width:100,height:50, bw:6,  breathe:1, bfreq:6.0, a1:4,  f1:4.0, p1:0.0, a2:3, f2:7.0, a3:2, f3:11.0 },
+    tidal:      { width:110,height:70, bw:34, breathe:8, bfreq:1.0, a1:30, f1:0.8, p1:0.3, a2:4, f2:2.0, a3:0, f3:0.0 },
+    chaos:      { width:90, height:50, bw:14, breathe:10,bfreq:4.5, a1:22, f1:2.7, p1:1.5, a2:12,f2:5.5, a3:8, f3:9.3 },
+    braid:      { width:80, height:60, bw:10, breathe:0, bfreq:0.0, a1:14, f1:2.0, p1:0.0, a2:7, f2:4.0, a3:3, f3:8.0 },
+  };
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = presets[btn.dataset.preset];
+      Object.assign(params, p);
+      // re-sync each input
+      ['width','height','bw','breathe','bfreq','a1','f1','p1','a2','f2','a3','f3'].forEach(id => {
+        const el = document.getElementById(id);
+        const valEl = document.getElementById('v-' + id);
+        const divisor = decimalControls[id];
+        el.value = divisor ? Math.round(params[id] * divisor) : params[id];
+        valEl.textContent = divisor
+          ? params[id].toFixed(divisor === 100 ? 2 : 1)
+          : params[id];
+      });
+      generate();
+    });
+  });
+
+  // ============ ACTIONS ============
+  document.getElementById('copy').addEventListener('click', async () => {
+    const text = document.getElementById('ascii').innerText;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copy');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => btn.textContent = orig, 1200);
+    } catch(e) {
+      alert('Copy failed — select and copy manually.');
+    }
+  });
+  document.getElementById('download').addEventListener('click', () => {
+    const text = document.getElementById('ascii').innerText;
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wave_${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // ============ CLOCK ============
+  function tick() {
+    const d = new Date();
+    document.getElementById('timestamp').textContent =
+      d.toISOString().slice(0,10) + ' / ' + d.toTimeString().slice(0,8) + ' UTC';
+  }
+  tick(); setInterval(tick, 1000);
+
+  // initial draw
+  generate();
+</script>
+</body>
+</html>
